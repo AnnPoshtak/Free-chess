@@ -1,0 +1,30 @@
+.appHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.settingsBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.settingsBtn:hover {
+  transform: scale(1.1) rotate(45deg);
+}
