@@ -1,0 +1,15 @@
+@use "../../../sass/utils/mixins.scss" as *;
+@use "../../../sass/utils/variables.scss" as *;
+
+.boardControls {
+  &_playBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white-color;
+    width: 100px;
+    height: 40px;
+    border-radius: 6px;
+    background-color: $action-items-color;
+  }
+}
