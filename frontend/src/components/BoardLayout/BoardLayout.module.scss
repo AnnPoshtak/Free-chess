@@ -1,30 +1,50 @@
-.board {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  width: 100%;
-  max-width: 600px;
-  aspect-ratio: 1 / 1;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.square {
-  width: 100%;
-  height: 100%;
+@use "../../sass/utils/mixins.scss" as *;
+.boardLayout {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background-size: cover;
-  background-position: center;
+  &_pos {
+    position: relative;
+    display: flex;
+    padding: 15px;
+
+    @include desk-s {
+      max-width: 600px;
+      max-height: 600px;
+    }
+  }
 }
 
-.light {
-  background-color: #ebecd0;
-  background-image: url("../../assets/textures/light-wood.png");
-}
+// .board {
+//   display: grid;
+//   grid-template-columns: repeat(8, 1fr);
+//   padding: 15px;
+//   width: 100%;
+//   max-width: 600px;
+//   aspect-ratio: 1 / 1;
+//   border-radius: 4px;
+//   overflow: hidden;
 
-.dark {
-  background-color: #739552;
-  background-image: url("../../assets//textures/dark-wood.png");
-}
+//   @include desk-l {
+//     padding: 0;
+//     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+//   }
+// }
+
+// .square {
+//   width: 100%;
+//   height: 100%;
+//   @include flex($justify-content: center, $align-items: center);
+//   background-size: cover;
+//   background-position: center;
+// }
+
+// .light {
+//   background-color: #ebecd0;
+//   background-image: url("../../assets/textures/light-wood.png");
+// }
+
+// .dark {
+//   background-color: #739552;
+//   background-image: url("../../assets//textures/dark-wood.png");
+// }
