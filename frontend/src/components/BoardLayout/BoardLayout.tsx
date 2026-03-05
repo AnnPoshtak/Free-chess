@@ -2,12 +2,15 @@ import styles from "./BoardLayout.module.scss";
 import BoardControls from "./BoardControls/BoardControls";
 import BoardMessage from "./BoardMessage/BoardMessage";
 import { useState, useRef } from "react";
+import moveSoundFile from "../../assets/sounds/move.mp3";
 import { Chess, type Square } from "chess.js";
 import {
   Chessboard,
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
+import type { ChessSettings } from "../../common/interface/ChessSettings";
+
 const BoardLayout = () => {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
   const chessGameRef = useRef(new Chess());
@@ -18,7 +21,21 @@ const BoardLayout = () => {
   const [moveFrom, setMoveFrom] = useState("");
   const [optionSquares, setOptionSquares] = useState({});
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
-  // make a random "CPU" move
+
+  const playMoveSound = () => {
+    const settingsString = localStorage.getItem("chess-settings");
+
+    if (settingsString) {
+      try {
+        const settings: ChessSettings = JSON.parse(settingsString);
+        if (settings.soundEnabled === false) return; 
+      } catch (error) {
+        console.error("Помилка читання налаштувань:", error);
+      }
+    }
+    const moveSound = new Audio(moveSoundFile);
+    moveSound.play().catch(e => console.error(e));
+  }
 
   function restartGame() {
     chessGame.reset();
@@ -39,6 +56,7 @@ const BoardLayout = () => {
     }
   }
 
+  // make a random "CPU" move
   function makeRandomMove() {
     // get all possible moves`
     const possibleMoves = chessGame.moves();
@@ -55,6 +73,7 @@ const BoardLayout = () => {
 
     // make the move
     chessGame.move(randomMove);
+    playMoveSound();
 
     // update the position state
     setChessPosition(chessGame.fen());
@@ -103,6 +122,7 @@ const BoardLayout = () => {
     // return true to indicate that there are move options
     return true;
   }
+  
   function onSquareClick({ square, piece }: SquareHandlerArgs) {
     // piece clicked to move
     if (!moveFrom && piece) {
@@ -144,6 +164,7 @@ const BoardLayout = () => {
         to: square,
         promotion: "q",
       });
+      playMoveSound();
     } catch {
       // if invalid, setMoveFrom and getMoveOptions
       const hasMoveOptions = getMoveOptions(square as Square);
@@ -182,6 +203,8 @@ const BoardLayout = () => {
         to: targetSquare,
         promotion: "q", // always promote to a queen for example simplicity
       });
+      
+      playMoveSound();
 
       // update the position state upon successful move to trigger a re-render of the chessboard
       setChessPosition(chessGame.fen());
