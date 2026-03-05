@@ -1,20 +1,23 @@
-import style from "./Header.module.scss"
+import React from 'react';
+import style from './Header.module.scss';
 
-const Header= () => {
-    const settingsButtonClick = () => {
-        alert("Later, the settings menu will open");
-    }
-    return (
-        <>
-            <header className={style.appHeader}>
-                <div className={style.logo}>
-                    <h1>Free-chess♟</h1>
-                </div>
-
-                <button className={style.settingsBtn} onClick={settingsButtonClick}>⚙</button>
-            </header>
-        </>
-    )
+interface HeaderProps {
+  onOpenSettings: () => void;
 }
+
+const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+  return (
+    <header className={style.appHeader}>
+      <h1>Free-chess ♟️</h1>
+      <button 
+        className={style.settingsButton} 
+        onClick={onOpenSettings}
+        title="Налаштування"
+      >
+        ⚙️
+      </button>
+    </header>
+  );
+};
 
 export default Header;

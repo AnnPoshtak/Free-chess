@@ -3,10 +3,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--hd-color);
+  color: var(--text-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease; 
 }
 
 .logo {
@@ -17,7 +19,7 @@
 }
 
 .settingsBtn {
-  background: none;
+  background-color: transparent;
   border: none;
   padding: 0;
   font-size: 1.5rem;
