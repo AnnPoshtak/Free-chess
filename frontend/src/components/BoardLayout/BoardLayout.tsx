@@ -22,13 +22,23 @@ const BoardLayout = () => {
   const [optionSquares, setOptionSquares] = useState({});
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
-  const playMoveSound = () => {
-    const settingsString = localStorage.getItem("chess-settings");
+  let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
 
-    if (settingsString) {
+  const colorsDark = {
+    classic: { backgroundColor: "#613d01ff" },
+    green: { backgroundColor: "#438205ff" },
+    blue: { backgroundColor: "#205c88ff" },
+  };
+
+  const colorsLight = {
+    classic: { backgroundColor: "#f0d9b5" },
+    green: { backgroundColor: "#a5d68f" },
+    blue: { backgroundColor: "#b8f5f5ff" },
+  };
+  const playMoveSound = () => {
+   if (getLocalStorage) {
       try {
-        const settings: ChessSettings = JSON.parse(settingsString);
-        if (settings.soundEnabled === false) return; 
+        if (getLocalStorage.soundEnabled === false) return;
       } catch (error) {
         console.error("Помилка читання налаштувань:", error);
       }
@@ -117,7 +127,9 @@ const BoardLayout = () => {
     };
 
     // set the option squares
-    setOptionSquares(newSquares);
+    if (getLocalStorage.showAvailableMoves === true) {
+      setOptionSquares(newSquares);
+    }
 
     // return true to indicate that there are move options
     return true;
@@ -229,12 +241,19 @@ const BoardLayout = () => {
   }
 
   // set the chessboard options
+
+  const boardColor = getLocalStorage.boardStyle || "classic";
+  const darkSquareStyle = colorsDark[boardColor as keyof typeof colorsDark];
+  const lightSquareStyle = colorsLight[boardColor as keyof typeof colorsLight];
+
   const chessboardOptions = {
     onPieceDrop,
     onSquareClick,
     position: chessPosition,
     squareStyles: optionSquares,
     id: "click-or-drag-to-move",
+    darkSquareStyle,
+    lightSquareStyle,
   };
 
   // render the chessboard
@@ -246,7 +265,7 @@ const BoardLayout = () => {
           <BoardMessage message={gameOverMessage} onRestart={restartGame} />
         )}
       </div>
-      <BoardControls />
+      <BoardControls restartGame={restartGame} />
     </section>
   );
 };

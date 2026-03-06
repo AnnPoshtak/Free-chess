@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Settings.module.scss';
-
-export interface ChessSettings {
-  theme: 'light' | 'dark';
-  soundEnabled: boolean;
-  boardStyle: 'classic' | 'green' | 'blue';
-}
+import type { ChessSettings } from '../../common/interface/ChessSettings';
 
 interface Props {
   isOpen: boolean;
@@ -16,6 +11,7 @@ interface Props {
 const default_settings: ChessSettings = {
   theme: 'light',
   soundEnabled: true,
+  showAvailableMoves: true,
   boardStyle: 'classic',
 };
 
@@ -89,6 +85,18 @@ const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
               type="checkbox" 
               checked={settings.soundEnabled} 
               onChange={(e) => updateSetting('soundEnabled', e.target.checked)}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </div>
+
+        <div className={styles.settingRow}>
+          <span>Показувати доступні ходи</span>
+          <label className={styles.switch}>
+            <input 
+              type="checkbox" 
+              checked={settings.showAvailableMoves} 
+              onChange={(e) => updateSetting('showAvailableMoves', e.target.checked)}
             />
             <span className={styles.slider}></span>
           </label>
