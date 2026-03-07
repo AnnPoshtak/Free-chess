@@ -2,5 +2,6 @@ export interface ChessSettings {
   theme: 'light' | 'dark';
   soundEnabled: boolean;
   showAvailableMoves: boolean;
+  showMoveHistory: boolean;
   boardStyle: 'classic' | 'green' | 'blue';
 }

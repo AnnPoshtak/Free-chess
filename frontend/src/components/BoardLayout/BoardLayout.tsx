@@ -9,7 +9,8 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
-import type { ChessSettings } from "../../common/interface/ChessSettings";
+import MoveHistory from "./MoveHistory/MoveHistory";
+
 
 const BoardLayout = () => {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
@@ -256,6 +257,12 @@ const BoardLayout = () => {
     lightSquareStyle,
   };
 
+  const moveHistory = chessGame.history();
+
+  const currentFen = chessGame.fen();
+  const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
+  const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
+
   // render the chessboard
   return (
     <section className={styles.boardLayout}>
@@ -265,7 +272,15 @@ const BoardLayout = () => {
           <BoardMessage message={gameOverMessage} onRestart={restartGame} />
         )}
       </div>
+      {halfMovesClock > 0 && (
+        <div style={{ textAlign: "center", margin: "10px 0", color: "#666" }}>
+          До нічиєї (правило 50 ходів) залишилось: <strong>{movesUntilDraw}</strong>
+        </div>
+      )}
       <BoardControls restartGame={restartGame} />
+      {getLocalStorage.showMoveHistory === true && (
+        <MoveHistory moveHistory={moveHistory} />
+      )}
     </section>
   );
 };
