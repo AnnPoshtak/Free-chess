@@ -269,7 +269,9 @@ const BoardLayout = () => {
         )}
       </div>
       <BoardControls restartGame={restartGame} />
-      <MoveHistory moveHistory={moveHistory} />
+      {getLocalStorage.showMoveHistory === true && (
+        <MoveHistory moveHistory={moveHistory} />
+      )}
     </section>
   );
 };
