@@ -1,0 +1,18 @@
+.moveHistory {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  max-width: 300px;
+  overflow-x: auto;
+}
+
+.moveHistory li {
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.moveHistory li:hover {
+  background-color: #f0f0f0;
+}

@@ -9,7 +9,8 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
-import type { ChessSettings } from "../../common/interface/ChessSettings";
+import MoveHistory from "./MoveHistory/MoveHistory";
+
 
 const BoardLayout = () => {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
@@ -256,6 +257,8 @@ const BoardLayout = () => {
     lightSquareStyle,
   };
 
+  const moveHistory = chessGame.history();
+
   // render the chessboard
   return (
     <section className={styles.boardLayout}>
@@ -266,6 +269,7 @@ const BoardLayout = () => {
         )}
       </div>
       <BoardControls restartGame={restartGame} />
+      <MoveHistory moveHistory={moveHistory} />
     </section>
   );
 };

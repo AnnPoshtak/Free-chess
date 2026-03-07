@@ -12,6 +12,7 @@ const default_settings: ChessSettings = {
   theme: 'light',
   soundEnabled: true,
   showAvailableMoves: true,
+  showMoveHistory: true,
   boardStyle: 'classic',
 };
 
@@ -97,6 +98,18 @@ const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
               type="checkbox" 
               checked={settings.showAvailableMoves} 
               onChange={(e) => updateSetting('showAvailableMoves', e.target.checked)}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </div>
+
+        <div className={styles.settingRow}>
+          <span>Показувати історію ходів</span>
+          <label className={styles.switch}>
+            <input 
+              type="checkbox" 
+              checked={settings.showMoveHistory} 
+              onChange={(e) => updateSetting('showMoveHistory', e.target.checked)}
             />
             <span className={styles.slider}></span>
           </label>
