@@ -1,7 +1,7 @@
 import styles from "./BoardLayout.module.scss";
 import BoardControls from "./BoardControls/BoardControls";
 import BoardMessage from "./BoardMessage/BoardMessage";
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import moveSoundFile from "../../assets/sounds/move.mp3";
 import { Chess, type Square } from "chess.js";
 import {
@@ -11,7 +11,7 @@ import {
 } from "react-chessboard";
 import MoveHistory from "./MoveHistory/MoveHistory";
 
-// Список усіх типів фігур (щоб не писати вручну багато разів)
+// List of all piece types
 const pieceTypes = [
   "wP", "wN", "wB", "wR", "wQ", "wK",
   "bP", "bN", "bB", "bR", "bQ", "bK",
@@ -30,7 +30,7 @@ const BoardLayout = () => {
   let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
 
   const colorsDark = {
-    classic: { backgroundColor: "#613d01ff" },
+    classic: { backgroundColor: "#976103ff" },
     green: { backgroundColor: "#438205ff" },
     blue: { backgroundColor: "#205c88ff" },
   };
@@ -45,7 +45,7 @@ const BoardLayout = () => {
       try {
         if (getLocalStorage.soundEnabled === false) return;
       } catch (error) {
-        console.error("Помилка читання налаштувань:", error);
+        console.error("Error reading settings:", error);
       }
     }
     const moveSound = new Audio(moveSoundFile);
@@ -110,7 +110,7 @@ const BoardLayout = () => {
       newSquares[move.to] = {
         background:
           chessGame.get(move.to) &&
-          chessGame.get(move.to)?.color !== chessGame.get(square)?.color
+            chessGame.get(move.to)?.color !== chessGame.get(square)?.color
             ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)" // larger circle for capturing
             : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
         // smaller circle for moving
@@ -196,7 +196,7 @@ const BoardLayout = () => {
         to: targetSquare,
         promotion: "q", // always promote to a queen for example simplicity
       });
-      
+
       playMoveSound();
       // update the position state upon successful move to trigger a re-render of the chessboard
       setChessPosition(chessGame.fen());
@@ -216,56 +216,55 @@ const BoardLayout = () => {
     }
   }
 
-  // ────────────────────────────────────────────────
-  // Логіка стилів фігур
+  // Piece styles
   const selectedPieceStyle = getLocalStorage.pieceStyle || "Classic";
 
-let piecesProp: Record<string, (props: any) => JSX.Element> | undefined = undefined;
+  let piecesProp: Record<string, (props: any) => JSX.Element> | undefined = undefined;
 
-if (selectedPieceStyle === "Kosal") {
-  piecesProp = {};
-  pieceTypes.forEach((type) => {
-    piecesProp![type] = ({ svgStyle, fill, square }) => (   // додаємо fill та square, якщо знадобиться
-      <svg
-        viewBox="0 0 45 45"   // стандартний viewBox для react-chessboard
-        width="100%"
-        height="100%"
-        style={svgStyle}
-      >
-        <image
-          href={`/pieces/Kosal/${type}.svg`}
-          x="0"
-          y="0"
-          width="45"
-          height="45"
-          preserveAspectRatio="xMidYMid meet"
-        />
-      </svg>
-    );
-  });
-}
+  if (selectedPieceStyle != "Classic") {
+    piecesProp = {};
+    pieceTypes.forEach((type) => {
+      piecesProp![type] = ({ svgStyle, fill, square }) => (
+        <svg
+          viewBox="0 0 45 45"   //viewBox for react-chessboard
+          width="100%"
+          height="100%"
+          style={svgStyle}
+        >
+          <image
+            href={`/pieces/${selectedPieceStyle}/${type}.svg`}
+            x="0"
+            y="0"
+            width="45"
+            height="45"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </svg>
+      );
+    });
+  }
 
-// set the chessboard options
-const boardColor = getLocalStorage.boardStyle || "classic";
-const darkSquareStyle = colorsDark[boardColor as keyof typeof colorsDark];
-const lightSquareStyle = colorsLight[boardColor as keyof typeof colorsLight];
+  // set the chessboard options
+  const boardColor = getLocalStorage.boardStyle || "classic";
+  const darkSquareStyle = colorsDark[boardColor as keyof typeof colorsDark];
+  const lightSquareStyle = colorsLight[boardColor as keyof typeof colorsLight];
 
-const chessboardOptions = {
-  onPieceDrop,
-  onSquareClick,
-  position: chessPosition,
-  squareStyles: optionSquares,
-  id: "click-or-drag-to-move",
-  darkSquareStyle,
-  lightSquareStyle,
-  pieces: piecesProp,   // ← ось ключовий рядок! У v5 це саме options.pieces
-};
+  const chessboardOptions = {
+    onPieceDrop,
+    onSquareClick,
+    position: chessPosition,
+    squareStyles: optionSquares,
+    id: "click-or-drag-to-move",
+    darkSquareStyle,
+    lightSquareStyle,
+    pieces: piecesProp,
+  };
 
-const moveHistory = chessGame.history();
-const currentFen = chessGame.fen();
-const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
-const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
-  
+  const moveHistory = chessGame.history();
+  const currentFen = chessGame.fen();
+  const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
+  const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
+
 
   // render the chessboard
   return (
