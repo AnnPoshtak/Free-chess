@@ -30,7 +30,7 @@ const BoardLayout = () => {
   let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
 
   const colorsDark = {
-    classic: { backgroundColor: "#976103ff" },
+    classic: { backgroundColor: "#d3ac68ff" },
     green: { backgroundColor: "#438205ff" },
     blue: { backgroundColor: "#205c88ff" },
   };
