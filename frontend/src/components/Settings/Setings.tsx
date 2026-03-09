@@ -14,6 +14,7 @@ const default_settings: ChessSettings = {
   showAvailableMoves: true,
   showMoveHistory: true,
   boardStyle: 'classic',
+  pieceStyle: 'Classic',
 };
 
 const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
@@ -77,6 +78,18 @@ const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
               title="Синя"
             />
           </div>
+        </div>
+
+        <div className={styles.settingRow}>
+          <span>Стиль фігур</span>
+          <select 
+            className={styles.styledSelect}
+            value={settings.pieceStyle}
+            onChange={(e) => updateSetting('pieceStyle', e.target.value as ChessSettings['pieceStyle'])}
+          >
+            <option value="Classic">Класична</option>
+            <option value="Kosal">Kosal</option>
+          </select>
         </div>
 
         <div className={styles.settingRow}>
