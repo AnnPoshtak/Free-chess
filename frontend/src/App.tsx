@@ -19,8 +19,6 @@ const App: React.FC = () => {
   return (
     <Container>
       <Header onOpenSettings={() => setIsModalOpen(true)} />
-      
-      {/* You can later pass the board style here: <BoardLayout boardStyle={appSettings?.boardStyle} /> */}
       <BoardLayout />
       
       <Settings 

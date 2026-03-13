@@ -4,4 +4,5 @@ export interface ChessSettings {
   showAvailableMoves: boolean;
   showMoveHistory: boolean;
   boardStyle: 'classic' | 'green' | 'blue';
+  pieceStyle: 'Classic' | 'Kosal' | 'Horsey' | 'Pixel' | 'Riohacha';
 }
