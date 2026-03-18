@@ -15,6 +15,7 @@ const default_settings: ChessSettings = {
   showMoveHistory: true,
   boardStyle: 'classic',
   pieceStyle: 'Classic',
+  difficulty: 'easy',
 };
 
 const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
@@ -92,6 +93,19 @@ const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
             <option value="Horsey">Horsey</option>
             <option value="Pixel">Pixel</option>
             <option value="Riohacha">Riohacha</option>
+          </select>
+        </div>
+
+        <div className={styles.settingRow}>
+          <span>Складність бота</span>
+          <select 
+            className={styles.styledSelect}
+            value={settings.difficulty}
+            onChange={(e) => updateSetting('difficulty', e.target.value as ChessSettings['difficulty'])}
+          >
+            <option value="easy">Легкий</option>
+            <option value="medium">Середній</option>
+            <option value="hard">Важкий</option>
           </select>
         </div>
 

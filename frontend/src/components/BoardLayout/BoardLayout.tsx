@@ -18,6 +18,18 @@ const pieceTypes = [
 ] as const;
 
 const BoardLayout = () => {
+
+  async function postChessApi(data = {}) {
+    const response = await fetch("https://chess-api.com/v1", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data),
+    });
+    return response.json();
+}
+
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
@@ -38,6 +50,12 @@ const BoardLayout = () => {
     classic: { backgroundColor: "#f0d9b5" },
     green: { backgroundColor: "#a5d68f" },
     blue: { backgroundColor: "#b8f5f5ff" },
+  };
+
+  const difficultSettings = {
+    easy: {depth: 2, skill_level: 2, movetime: 200},
+    medium: {depth: 4, skill_level: 8, movetime: 300},
+    hard: {depth: 6, skill_level: 15, movetime: 800},
   };
 
   const playMoveSound = () => {
@@ -91,6 +109,25 @@ const BoardLayout = () => {
     checkGameOver();
   }
 
+  const difficulty = difficultSettings[getLocalStorage.difficulty as keyof typeof difficultSettings];
+
+  async function makeBestMove() {
+    if (chessGame.isGameOver()) {
+      checkGameOver();
+      return;
+    }
+
+    try {
+      const apiResponse = await postChessApi({ fen: chessGame.fen(), ...difficulty });
+      chessGame.move(apiResponse.san || apiResponse.move);
+      playMoveSound();
+      setChessPosition(chessGame.fen());
+      checkGameOver();
+    } catch (error) {
+      makeRandomMove();
+    }
+  }
+
   // get the move options for a square to show valid moves
   function getMoveOptions(square: Square) {
     // get the moves for the square
@@ -130,6 +167,7 @@ const BoardLayout = () => {
   }
 
   function onSquareClick({ square, piece }: SquareHandlerArgs) {
+    if (chessGame.turn() === 'b') return;
     // piece clicked to move
     if (!moveFrom && piece) {
       // get the move options for the square
@@ -177,7 +215,7 @@ const BoardLayout = () => {
     // update the position state
     setChessPosition(chessGame.fen());
     // make random cpu move after a short delay
-    setTimeout(makeRandomMove, 300);
+    setTimeout(makeBestMove, 300);
     // clear moveFrom and optionSquares
     setMoveFrom("");
     setOptionSquares({});
@@ -185,6 +223,8 @@ const BoardLayout = () => {
 
   // handle piece drop
   function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
+    if (chessGame.turn() === 'b') return false;
+
     // type narrow targetSquare potentially being null (e.g. if dropped off board)
     if (!targetSquare) {
       return false;
@@ -206,7 +246,7 @@ const BoardLayout = () => {
       checkGameOver();
       if (!chessGame.isGameOver()) {
         // make random cpu move after a short delay
-        setTimeout(makeRandomMove, 500);
+        setTimeout(makeBestMove, 500);
       }
       // return true as the move was successful
       return true;

@@ -5,4 +5,5 @@ export interface ChessSettings {
   showMoveHistory: boolean;
   boardStyle: 'classic' | 'green' | 'blue';
   pieceStyle: 'Classic' | 'Kosal' | 'Horsey' | 'Pixel' | 'Riohacha';
+  difficulty: 'easy' | 'medium' | 'hard';
 }
