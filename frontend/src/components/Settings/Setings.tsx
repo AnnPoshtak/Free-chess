@@ -90,7 +90,6 @@ const Settings: React.FC<Props> = ({ isOpen, onClose, onSettingsChange }) => {
           >
             <option value="Classic">Класична</option>
             <option value="Kosal">Kosal</option>
-            <option value="Horsey">Horsey</option>
             <option value="Pixel">Pixel</option>
             <option value="Riohacha">Riohacha</option>
           </select>

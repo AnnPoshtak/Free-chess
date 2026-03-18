@@ -36,7 +36,7 @@ const BoardLayout = () => {
   // track the current position of the chess game in state to trigger a re-render of the chessboard
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
   const [moveFrom, setMoveFrom] = useState("");
-  const [optionSquares, setOptionSquares] = useState({});
+  const [optionSquares, setOptionSquares] = useState<Record<string, React.CSSProperties>>({});
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
 
   let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
@@ -289,11 +289,42 @@ const BoardLayout = () => {
   const darkSquareStyle = colorsDark[boardColor as keyof typeof colorsDark];
   const lightSquareStyle = colorsLight[boardColor as keyof typeof colorsLight];
 
+  // --- NEW CODE FOR CHECK DANGER ---
+  
+  // copy old square options so we no break them
+  const customSquareStyles = { ...optionSquares };
+
+  // check if king have big problem (check or mate) oh no
+  if (chessGame.isCheck() || chessGame.isCheckmate()) {
+    const turn = chessGame.turn(); // who is moving now
+    const board = chessGame.board();
+    let kingSquare = "";
+
+    // search king everywhere on board like hide and seek
+    for (const row of board) {
+      for (const piece of row) {
+        if (piece && piece.type === "k" && piece.color === turn) {
+          kingSquare = piece.square;
+          break; // we find him, stop searching
+        }
+      }
+    }
+
+    // make square red so player see danger and panic
+    if (kingSquare) {
+      customSquareStyles[kingSquare] = {
+        ...customSquareStyles[kingSquare], // keep old style if exist
+        background: "radial-gradient(ellipse at center, rgba(255, 0, 0, 0.8) 0%, rgba(255, 0, 0, 0.4) 60%, transparent 100%)",
+        borderRadius: "50%",
+      };
+    }
+  }
+
   const chessboardOptions = {
     onPieceDrop,
     onSquareClick,
     position: chessPosition,
-    squareStyles: optionSquares,
+    squareStyles: customSquareStyles, // use new styles with danger red here
     id: "click-or-drag-to-move",
     darkSquareStyle,
     lightSquareStyle,
