@@ -289,28 +289,24 @@ const BoardLayout = () => {
   const darkSquareStyle = colorsDark[boardColor as keyof typeof colorsDark];
   const lightSquareStyle = colorsLight[boardColor as keyof typeof colorsLight];
 
-  // --- NEW CODE FOR CHECK DANGER ---
-  
-  // copy old square options so we no break them
+  // copy old square options
   const customSquareStyles = { ...optionSquares };
 
-  // check if king have big problem (check or mate) oh no
+  // check if king have check or mate
   if (chessGame.isCheck() || chessGame.isCheckmate()) {
     const turn = chessGame.turn(); // who is moving now
     const board = chessGame.board();
     let kingSquare = "";
-
-    // search king everywhere on board like hide and seek
     for (const row of board) {
       for (const piece of row) {
         if (piece && piece.type === "k" && piece.color === turn) {
           kingSquare = piece.square;
-          break; // we find him, stop searching
+          break; 
         }
       }
     }
 
-    // make square red so player see danger and panic
+    // make square red so player see danger
     if (kingSquare) {
       customSquareStyles[kingSquare] = {
         ...customSquareStyles[kingSquare], // keep old style if exist
