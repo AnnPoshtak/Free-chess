@@ -1,5 +1,6 @@
 import "./App.css";
 import BoardLayout from "./components/BoardLayout/BoardLayout";
+import MultiplayerGame from "./components/BoardLayout/MultiplayerGame.tsx"
 import Header from "./components/Header/Header";
 import { Container } from "./components/Container/Container";
 import React, { useState, useEffect } from 'react';
@@ -27,8 +28,12 @@ const App: React.FC = () => {
 
       <Header onOpenSettings={() => setIsModalOpen(true)} />
       
-      <BoardLayout mode={gameMode} />
-      
+      {gameMode === "bot" && (
+        <BoardLayout />
+      )}
+      {gameMode === "multiplayer" && (
+        <MultiplayerGame />
+      )}
       <Settings 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
