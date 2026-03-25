@@ -41,6 +41,19 @@ io.on('connection', (socket) => {
   waitingForGame.push(socket.id);
   startGame();
 
+
+  socket.on("find_new_game", (data) => {
+    if (data && data.roomId) {
+      socket.leave(data.roomId);
+    }
+    
+    console.log(`Player ${socket.id} is looking for a new game.`);
+    if (!waitingForGame.includes(socket.id)) {
+      waitingForGame.push(socket.id);
+    }
+    startGame();
+  });
+
   socket.on("newFen", (data) => {
     console.log(`Received move in room ${data.roomId}`);
     socket.to(data.roomId).emit("board_updated", data.fen);
