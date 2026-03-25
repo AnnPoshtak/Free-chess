@@ -1,5 +1,4 @@
 import styles from "./BoardLayout.module.scss";
-import BoardControls from "./BoardControls/BoardControls";
 import BoardMessage from "./BoardMessage/BoardMessage";
 import React, { useState, useRef, useEffect } from "react";
 import moveSoundFile from "../../assets/sounds/move.mp3";
@@ -33,8 +32,8 @@ const MultiplayerGame = () => {
   const [playerColor, setPlayerColor] = useState<"w" | "b" | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
   
+  //all for websockets
   useEffect(() => {
-    // 2. FIRST, attach all event listeners
     socket.on("connect", () => {
       console.log("Connected to server. SocketID:", socket.id);
     });
@@ -60,11 +59,8 @@ const MultiplayerGame = () => {
     socket.on("opponent_disconnected", (data) => {
       setGameOverMessage("You win! Opponrnt left the game");
     })
-
-    // 3. ONLY THEN connect to the server!
     socket.connect();
 
-    // 4. Properly clean up on unmount
     return () => {
       socket.off("connect");
       socket.off("game_started");
@@ -97,14 +93,19 @@ const MultiplayerGame = () => {
     const moveSound = new Audio(moveSoundFile);
     moveSound.play().catch(e => console.error(e));
   }
-
+  
   function restartGame() {
+    const oldRoomId = roomId;
     chessGame.reset();
     setChessPosition(chessGame.fen());
     setGameOverMessage(null);
     setMoveFrom("");
     setOptionSquares({});
+    setRoomId(null);
+    setPlayerColor(null);
+    socket.emit("find_new_game", { roomId: oldRoomId });
   }
+
 
   function checkGameOver() {
     if (chessGame.isCheckmate()) {
