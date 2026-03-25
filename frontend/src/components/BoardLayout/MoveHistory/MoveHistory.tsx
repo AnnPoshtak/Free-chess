@@ -1,8 +1,12 @@
+import React from "react";
 import style from "./MoveHistory.module.scss";
+interface MoveHistoryProps {
+  moveHistory: string[];
+}
 
-function MoveHistory({ moveHistory }) {
+const MoveHistory: React.FC<MoveHistoryProps> = ({ moveHistory }) => {
   return (
-    <div>
+    <div className={style.historyContainer}>
       <h2>Історія ходів</h2>
       <ul className={style.moveHistory}>
         {moveHistory.map((move, index) => (
@@ -11,6 +15,6 @@ function MoveHistory({ moveHistory }) {
       </ul>
     </div>
   );
-}
+};
 
 export default MoveHistory;
