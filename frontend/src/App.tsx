@@ -1,5 +1,5 @@
 import "./App.css";
-import BoardLayout from "./components/BoardLayout/BoardLayout";
+import BotGame from "./components/BoardLayout/BotGame.tsx";
 import MultiplayerGame from "./components/BoardLayout/MultiplayerGame.tsx"
 import Header from "./components/Header/Header";
 import { Container } from "./components/Container/Container";
@@ -29,7 +29,7 @@ const App: React.FC = () => {
       <Header onOpenSettings={() => setIsModalOpen(true)} />
       
       {gameMode === "bot" && (
-        <BoardLayout />
+        <BotGame />
       )}
       {gameMode === "multiplayer" && (
         <MultiplayerGame />

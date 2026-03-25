@@ -34,13 +34,13 @@ const MultiplayerGame = () => {
   const [roomId, setRoomId] = useState<string | null>(null);
   
   useEffect(() => {
-    // 2. СПОЧАТКУ вішаємо всі "вуха" (слухачів подій)
+    // 2. FIRST, attach all event listeners
     socket.on("connect", () => {
       console.log("Connected to server. SocketID:", socket.id);
     });
 
     socket.on("game_started", (data) => {
-      console.log("Отримано game_started!", data);
+      console.log("Received game_started!", data);
       setRoomId(data.roomId);
       setPlayerColor(data.color);
       
@@ -50,22 +50,22 @@ const MultiplayerGame = () => {
     });
 
     socket.on("board_updated", (newFen) => {
-      console.log("Отримано новий хід!");
+      console.log("Received new move!");
       chessGame.load(newFen);
       setChessPosition(newFen);
       playMoveSound();
       checkGameOver();
     });
 
-    // 3. ТІЛЬКИ ТЕПЕР підключаємося до сервера!
+    // 3. ONLY THEN connect to the server!
     socket.connect();
 
-    // 4. Правильно очищаємо все при закритті вкладки
+    // 4. Properly clean up on unmount
     return () => {
       socket.off("connect");
       socket.off("game_started");
       socket.off("board_updated");
-      socket.disconnect(); // Відключаємось, щоб не плодити фантомних гравців
+      socket.disconnect(); // Disconnect to avoid phantom players
     };
   }, [])
 
@@ -112,7 +112,6 @@ const MultiplayerGame = () => {
       setGameOverMessage("Stalemate! Draw");
     }
   }
-
 
   // get the move options for a square to show valid moves
   function getMoveOptions(square: Square) {
@@ -311,18 +310,16 @@ const MultiplayerGame = () => {
   const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
   const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
 
-
   // render the chessboard
   return (
     <section className={styles.boardLayout}>
-      {/* Якщо кімнати ще немає - показуємо екран очікування */}
+      {/* Show waiting screen if no room exists yet */}
       {!roomId ? (
         <div style={{ textAlign: "center", padding: "50px 20px" }}>
-          <h2>Очікуємо на суперника... ⏳</h2>
-          <p>Відкрийте гру в іншій вкладці або браузері, щоб почати матч.</p>
+          <h2>Waiting for opponent... ⏳</h2>
+          <p>Open the game in another tab or browser to start the match.</p>
         </div>
       ) : (
-        /* Якщо кімната є - малюємо дошку і все інше */
         <>
           <div className={styles.boardLayout_pos}>
             <Chessboard options={chessboardOptions} />
@@ -332,7 +329,7 @@ const MultiplayerGame = () => {
           </div>
           {halfMovesClock > 0 && (
             <div style={{ textAlign: "center", margin: "10px 0", color: "#666" }}>
-              До нічиєї (правило 50 ходів) залишилось: <strong>{movesUntilDraw}</strong>
+              Moves until draw (50-move rule): <strong>{movesUntilDraw}</strong>
             </div>
           )}
           <BoardControls restartGame={restartGame} />
