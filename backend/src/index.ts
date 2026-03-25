@@ -46,6 +46,15 @@ io.on('connection', (socket) => {
     socket.to(data.roomId).emit("board_updated", data.fen);
   });
 
+  socket.on("disconnecting", () => {
+  console.log(`The player with id ${socket.id} has left the game.`);
+  for (const room of socket.rooms) {
+    if (room !== socket.id) {
+      socket.to(room).emit("opponent_disconnected");
+    }
+  }
+});
+
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id);
     waitingForGame = waitingForGame.filter(id => id !== socket.id);

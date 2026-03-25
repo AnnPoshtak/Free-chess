@@ -57,6 +57,10 @@ const MultiplayerGame = () => {
       checkGameOver();
     });
 
+    socket.on("opponent_disconnected", (data) => {
+      setGameOverMessage("You win! Opponrnt left the game");
+    })
+
     // 3. ONLY THEN connect to the server!
     socket.connect();
 
@@ -316,8 +320,8 @@ const MultiplayerGame = () => {
       {/* Show waiting screen if no room exists yet */}
       {!roomId ? (
         <div style={{ textAlign: "center", padding: "50px 20px" }}>
-          <h2>Waiting for opponent... ⏳</h2>
-          <p>Open the game in another tab or browser to start the match.</p>
+          <h2>Шукаємо вам суперника... ⏳</h2>
+          <p>Прийдеться зачекати деякий час...</p>
         </div>
       ) : (
         <>
@@ -332,7 +336,6 @@ const MultiplayerGame = () => {
               Moves until draw (50-move rule): <strong>{movesUntilDraw}</strong>
             </div>
           )}
-          <BoardControls restartGame={restartGame} />
           {getLocalStorage.showMoveHistory === true && (
             <MoveHistory moveHistory={moveHistory} />
           )}
