@@ -338,7 +338,7 @@ const MultiplayerGame = () => {
             </div>
           )}
           {getLocalStorage.showMoveHistory === true && (
-            <MoveHistory moveHistory={moveHistory} />
+            <p>Історія гри поки не доступна в мультиплеєрі. Ми працюємо над цим🚧</p>
           )}
         </>
       )}
