@@ -1,0 +1,161 @@
+@use "../../sass/utils/variables.scss" as *;
+@use "../../sass/utils/mixins.scss" as *;
+
+.modalOverlay {
+  @include flex($justify-content: center, $align-items: center);
+  @include position($position: fixed, $top: 0, $left: 0);
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background-color: var(--hd-color);
+  color: var(--text-color);
+  width: 100%;
+  max-width: 380px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+  @include flex($justify-content: space-between, $align-items: center);
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-family: sans-serif;
+  }
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.settingRow {
+  @include flex($justify-content: space-between, $align-items: center);
+  margin-bottom: 16px;
+  font-family: sans-serif;
+}
+
+.styledSelect {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--select-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.boardPresets {
+  display: flex;
+  gap: 10px;
+}
+
+.presetBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &.active {
+    border-color: var(--text-color);
+    transform: scale(1.1);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  }
+  &.classic {
+    background: linear-gradient(135deg, #f0d9b5 50%, #b58863 50%);
+  }
+  &.green {
+    background: linear-gradient(135deg, #ffffdd 50%, #86a666 50%);
+  }
+  &.blue {
+    background: linear-gradient(135deg, #dee3e6 50%, #8ca2ad 50%);
+  }
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.slider {
+  @include position(
+    $position: absolute,
+    $top: 0,
+    $left: 0,
+    $right: 0,
+    $bottom: 0
+  );
+  cursor: pointer;
+  background-color: var(--toggle-bg);
+  transition: 0.4s;
+  border-radius: 24px;
+
+  &:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--hd-color);
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+}
+
+.switch input:checked + .slider {
+  background-color: $bg-btn-color;
+}
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,15 @@
+@use "../../sass/utils/mixins.scss" as *;
+
+.boardLayout {
+  @include flex($flex-direction: column, $align-items: center);
+  &_pos {
+    position: relative;
+    display: flex;
+    padding: 15px;
+
+    @include desk-s {
+      max-width: 600px;
+      max-height: 600px;
+    }
+  }
+}

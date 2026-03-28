@@ -1,0 +1,50 @@
+@use "../../../sass/utils/variables.scss" as *;
+@use "../../../sass/utils/mixins.scss" as *;
+
+.overlay {
+  @include flex($justify-content: center, $align-items: center);
+  @include position($position: absolute, $top: 0, $left: 0);
+  width: 100%;
+  height: 100%;
+  background-color: $board-overlay;
+  z-index: 10;
+}
+
+.modal {
+  background-color: $modal-bg;
+  padding: 30px 50px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px $modal-box-shadow;
+  text-align: center;
+}
+
+.title {
+  padding-bottom: 15px;
+  color: $white-color;
+  font-size: 24px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button {
+  padding: 10px 40px;
+  color: $white-color;
+  border-radius: 6px;
+  background-color: $action-items-color;
+  border: none;
+  cursor: pointer;
+  transition:
+    filter 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    filter: brightness(0.9);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+  }
+}

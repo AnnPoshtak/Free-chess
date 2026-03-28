@@ -1,0 +1,38 @@
+@use "../../sass/utils/mixins.scss" as *;
+@use "../../sass/utils/variables.scss" as *;
+
+.appHeader {
+  @include flex($justify-content: space-between, $align-items: center);
+  padding: 1rem 2rem;
+  background-color: var(--hd-color);
+  color: var(--text-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-family: "Arial", sans-serif;
+  color: #333;
+}
+
+.settingsBtn {
+  @include flex($align-items: center, $justify-content: center);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  color: inherit;
+  transform-origin: center;
+}
+
+.settingsBtn:hover {
+  transform: scale(1.1) rotate(45deg);
+}

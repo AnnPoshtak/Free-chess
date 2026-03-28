@@ -1,0 +1,26 @@
+:root,
+[data-theme="light"] {
+  --bg-color: #f9f9f9;
+  --hd-color: #ffffff;
+  --text-color: #333;
+  --border-color: #ccc;
+  --select-bg: #f0f0f0;
+  --toggle-bg: #ccc;
+}
+
+[data-theme="dark"] {
+  --bg-color: #212121;
+  --hd-color: #2b2b2b;
+  --text-color: #e0e0e0;
+  --border-color: #555;
+  --select-bg: #383838;
+  --toggle-bg: #555;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
