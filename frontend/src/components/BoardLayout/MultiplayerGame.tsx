@@ -8,6 +8,8 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
+import { io } from "socket.io-client";
+import NicknameModal from "../NicknameModal/NicknameModal.tsx";
 
 // List of all piece types
 const pieceTypes = [
@@ -15,15 +17,8 @@ const pieceTypes = [
   "bP", "bN", "bB", "bR", "bQ", "bK",
 ] as const;
 
-import { io } from "socket.io-client";
-
-const nickname = prompt("Введіть ваш нікнейм")||"Анонім";
-
 const socket = io("http://localhost:4000", {
   autoConnect: false,
-  auth: {
-    nickname: nickname
-  }
 });
 
 const MultiplayerGame = () => {
@@ -37,10 +32,16 @@ const MultiplayerGame = () => {
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
   const [playerColor, setPlayerColor] = useState<"w" | "b" | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [opponentNickname, setOpponentNickname] = useState<string>("")
+  const [opponentNickname, setOpponentNickname] = useState<string>("");
   
+  const [nickname, setNickname] = useState<string | null>(null);
+
   //all for websockets
   useEffect(() => {
+    if (!nickname) return;
+
+    socket.auth = { nickname };
+
     socket.on("connect", () => {
       console.log("Connected to server. SocketID:", socket.id);
     });
@@ -49,7 +50,7 @@ const MultiplayerGame = () => {
       console.log("Received game_started!", data);
       setRoomId(data.roomId);
       setPlayerColor(data.color);
-      setOpponentNickname(data.opponentNickname)
+      setOpponentNickname(data.opponentNickname);
       
       chessGame.reset();
       setChessPosition(chessGame.fen());
@@ -65,17 +66,19 @@ const MultiplayerGame = () => {
     });
 
     socket.on("opponent_disconnected", (data) => {
-      setGameOverMessage("You win! Opponrnt left the game");
-    })
+      setGameOverMessage("You win! Opponent left the game");
+    });
+
     socket.connect();
 
     return () => {
       socket.off("connect");
       socket.off("game_started");
       socket.off("board_updated");
+      socket.off("opponent_disconnected");
       socket.disconnect(); // Disconnect to avoid phantom players
     };
-  }, [])
+  }, [nickname]);
 
   let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
 
@@ -113,7 +116,6 @@ const MultiplayerGame = () => {
     setPlayerColor(null);
     socket.emit("find_new_game", { roomId: oldRoomId });
   }
-
 
   function checkGameOver() {
     if (chessGame.isCheckmate()) {
@@ -310,7 +312,7 @@ const MultiplayerGame = () => {
     onPieceDrop,
     onSquareClick,
     position: chessPosition,
-    squareStyles: customSquareStyles, // use new styles with danger red here
+    squareStyles: customSquareStyles,
     id: "click-or-drag-to-move",
     darkSquareStyle,
     lightSquareStyle,
@@ -323,10 +325,14 @@ const MultiplayerGame = () => {
   const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
   const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
 
+  if (!nickname) {
+    return <NicknameModal onSave={setNickname} />;
+  }
+
   // render the chessboard
   return (
     <section className={styles.boardLayout}>
-      <h2>{opponentNickname}</h2>
+      <h2>{opponentNickname || "Очікуємо суперника..."}</h2>
       {/* Show waiting screen if no room exists yet */}
       {!roomId ? (
         <div style={{ textAlign: "center", padding: "50px 20px" }}>
