@@ -23,24 +23,25 @@ const io = new Server(server, {
 });
 
 function startGame() {
-  if (waitingForGame.length < 2) return;
-
-  const player1 = waitingForGame.shift();
-  const player2 = waitingForGame.shift();
-
-  const player1Id = player1?.id;
-  const player2Id = player2?.id;
-
-  if (player1Id && player2Id) {
-    const room = "gameRoom_" + Date.now();
-
-    io.sockets.sockets.get(player1Id)?.join(room);
-    io.sockets.sockets.get(player2Id)?.join(room);
-
-    io.to(player1Id).emit("game_started", { roomId: room, color: "w", opponentNickname: player2?.nickname });
-    io.to(player2Id).emit("game_started", { roomId: room, color: "b", opponentNickname: player1?.nickname });
-    
-    console.log(`Game started in room: ${room}. ${player1?.nickname} vs ${player2?.nickname}`);
+  
+  while (waitingForGame.length >= 2){
+    const player1 = waitingForGame.shift();
+    const player2 = waitingForGame.shift();
+  
+    const player1Id = player1?.id;
+    const player2Id = player2?.id;
+  
+    if (player1Id && player2Id) {
+      const room = "gameRoom_" + Date.now();
+  
+      io.sockets.sockets.get(player1Id)?.join(room);
+      io.sockets.sockets.get(player2Id)?.join(room);
+  
+      io.to(player1Id).emit("game_started", { roomId: room, color: "w", opponentNickname: player2?.nickname });
+      io.to(player2Id).emit("game_started", { roomId: room, color: "b", opponentNickname: player1?.nickname });
+      
+      console.log(`Game started in room: ${room}. ${player1?.nickname} vs ${player2?.nickname}`);
+  }
   }
 }
 
