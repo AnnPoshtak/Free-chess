@@ -8,7 +8,6 @@ import {
   type PieceDropHandlerArgs,
   type SquareHandlerArgs,
 } from "react-chessboard";
-import MoveHistory from "./MoveHistory/MoveHistory";
 
 // List of all piece types
 const pieceTypes = [
@@ -338,7 +337,7 @@ const MultiplayerGame = () => {
             </div>
           )}
           {getLocalStorage.showMoveHistory === true && (
-            <p>Історія гри поки не доступна в мультиплеєрі. Ми працюємо над цим🚧</p>
+            <p style={{backgroundColor: '#fff3cd', color: '#856404', border: '1px solid #ffeeba', padding: '12px 16px', borderRadius: '6px', fontFamily: 'sans-serif', fontSize: '14px', margin: '20px auto', maxWidth: 'fit-content', textAlign: 'center'}}>Історія гри поки не доступна в мультиплеєрі. Ми працюємо над цим 🚧</p>
           )}
         </>
       )}
