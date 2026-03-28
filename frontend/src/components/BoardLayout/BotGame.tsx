@@ -17,7 +17,7 @@ const pieceTypes = [
   "bP", "bN", "bB", "bR", "bQ", "bK",
 ] as const;
 
-const BoardLayout = () => {
+const BotGame = () => {
 
   async function postChessApi(data = {}) {
     const response = await fetch("https://chess-api.com/v1", {
@@ -355,4 +355,4 @@ const BoardLayout = () => {
   );
 };
 
-export default BoardLayout;
+export default BotGame;
