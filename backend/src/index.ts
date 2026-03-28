@@ -8,7 +8,12 @@ app.use(cors());
 
 const server = http.createServer(app);
 
-let waitingForGame: string[] = [];
+type Player = {
+  id: string;
+  nickname: string;
+};
+
+let waitingForGame: Player[] = [];
 
 const io = new Server(server, {
   cors: {
@@ -20,8 +25,11 @@ const io = new Server(server, {
 function startGame() {
   if (waitingForGame.length < 2) return;
 
-  const player1Id = waitingForGame.shift();
-  const player2Id = waitingForGame.shift();
+  const player1 = waitingForGame.shift();
+  const player2 = waitingForGame.shift();
+
+  const player1Id = player1?.id;
+  const player2Id = player2?.id;
 
   if (player1Id && player2Id) {
     const room = "gameRoom_" + Date.now();
@@ -29,18 +37,19 @@ function startGame() {
     io.sockets.sockets.get(player1Id)?.join(room);
     io.sockets.sockets.get(player2Id)?.join(room);
 
-    io.to(player1Id).emit("game_started", { roomId: room, color: "w" });
-    io.to(player2Id).emit("game_started", { roomId: room, color: "b" });
+    io.to(player1Id).emit("game_started", { roomId: room, color: "w", opponentNickname: player2?.nickname });
+    io.to(player2Id).emit("game_started", { roomId: room, color: "b", opponentNickname: player1?.nickname });
     
-    console.log(`Game started in room: ${room}`);
+    console.log(`Game started in room: ${room}. ${player1?.nickname} vs ${player2?.nickname}`);
   }
 }
 
 io.on('connection', (socket) => {
-  console.log('New Player joined! ID:', socket.id);
-  waitingForGame.push(socket.id);
+  const nickname = socket.handshake.auth.nickname || "Анонім"; 
+  console.log(`New Player joined! ID:${socket.id} Nickname: ${nickname}`);
+  
+  waitingForGame.push({ id: socket.id, nickname });
   startGame();
-
 
   socket.on("find_new_game", (data) => {
     if (data && data.roomId) {
@@ -48,8 +57,10 @@ io.on('connection', (socket) => {
     }
     
     console.log(`Player ${socket.id} is looking for a new game.`);
-    if (!waitingForGame.includes(socket.id)) {
-      waitingForGame.push(socket.id);
+    const isAlreadyWaiting = waitingForGame.some(player => player.id === socket.id);
+    
+    if (!isAlreadyWaiting) {
+      waitingForGame.push({ id: socket.id, nickname }); 
     }
     startGame();
   });
@@ -60,17 +71,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on("disconnecting", () => {
-  console.log(`The player with id ${socket.id} has left the game.`);
-  for (const room of socket.rooms) {
-    if (room !== socket.id) {
-      socket.to(room).emit("opponent_disconnected");
+    console.log(`The player with id ${socket.id} has left the game.`);
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.to(room).emit("opponent_disconnected");
+      }
     }
-  }
-});
+  });
 
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id);
-    waitingForGame = waitingForGame.filter(id => id !== socket.id);
+    waitingForGame = waitingForGame.filter(player => player.id !== socket.id);
   });
 });
 

@@ -17,7 +17,14 @@ const pieceTypes = [
 
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000", { autoConnect: false });
+const nickname = prompt("Введіть ваш нікнейм")||"Анонім";
+
+const socket = io("http://localhost:4000", {
+  autoConnect: false,
+  auth: {
+    nickname: nickname
+  }
+});
 
 const MultiplayerGame = () => {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
@@ -30,6 +37,7 @@ const MultiplayerGame = () => {
   const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
   const [playerColor, setPlayerColor] = useState<"w" | "b" | null>(null);
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [opponentNickname, setOpponentNickname] = useState<string>("")
   
   //all for websockets
   useEffect(() => {
@@ -41,6 +49,7 @@ const MultiplayerGame = () => {
       console.log("Received game_started!", data);
       setRoomId(data.roomId);
       setPlayerColor(data.color);
+      setOpponentNickname(data.opponentNickname)
       
       chessGame.reset();
       setChessPosition(chessGame.fen());
@@ -71,7 +80,7 @@ const MultiplayerGame = () => {
   let getLocalStorage = JSON.parse(localStorage.getItem("chess-settings") || "{}");
 
   const colorsDark = {
-    classic: { backgroundColor: "#d3ac68ff" },
+    classic: { backgroundColor: "rgb(121, 85, 21)" },
     green: { backgroundColor: "#438205ff" },
     blue: { backgroundColor: "#205c88ff" },
   };
@@ -317,6 +326,7 @@ const MultiplayerGame = () => {
   // render the chessboard
   return (
     <section className={styles.boardLayout}>
+      <h2>{opponentNickname}</h2>
       {/* Show waiting screen if no room exists yet */}
       {!roomId ? (
         <div style={{ textAlign: "center", padding: "50px 20px" }}>
@@ -341,6 +351,7 @@ const MultiplayerGame = () => {
           )}
         </>
       )}
+      <h2>{nickname}</h2>
     </section>
   );
 };
