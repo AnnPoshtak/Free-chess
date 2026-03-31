@@ -17,8 +17,12 @@ const pieceTypes = [
   "bP", "bN", "bB", "bR", "bQ", "bK",
 ] as const;
 
-const socket = io("http://localhost:4000", {
+const socket = io("https://free-chess-2epi.onrender.com", {
   autoConnect: false,
+  transports: ["websocket"],
+  extraHeaders: {
+    "Bypass-Tunnel-Reminder": "true"
+  }
 });
 
 const MultiplayerGame = () => {
@@ -65,8 +69,8 @@ const MultiplayerGame = () => {
       checkGameOver();
     });
 
-    socket.on("opponent_disconnected", (data) => {
-      setGameOverMessage("You win! Opponent left the game");
+    socket.on("opponent_disconnected", () => {
+      setGameOverMessage("Ти переміг! Ваш противник покинув гру");
     });
 
     socket.connect();
@@ -119,12 +123,12 @@ const MultiplayerGame = () => {
 
   function checkGameOver() {
     if (chessGame.isCheckmate()) {
-      const winner = chessGame.turn() === "w" ? "Black" : "White";
-      setGameOverMessage(`${winner} won!`);
+      const winner = chessGame.turn() === "w" ? "Чорні" : "Білі";
+      setGameOverMessage(`${winner} перемогли!`);
     } else if (chessGame.isDraw()) {
-      setGameOverMessage("Draw!");
+      setGameOverMessage("Нічія!");
     } else if (chessGame.isStalemate()) {
-      setGameOverMessage("Stalemate! Draw");
+      setGameOverMessage("Пат! Нічія");
     }
   }
 
@@ -251,12 +255,12 @@ const MultiplayerGame = () => {
   // Piece styles
   const selectedPieceStyle = getLocalStorage.pieceStyle || "Classic";
 
-  let piecesProp: Record<string, (props: any) => JSX.Element> | undefined = undefined;
+  let piecesProp: Record<string, (props: any) => React.JSX.Element> | undefined = undefined;
 
   if (selectedPieceStyle != "Classic") {
     piecesProp = {};
     pieceTypes.forEach((type) => {
-      piecesProp![type] = ({ svgStyle, fill, square }) => (
+      piecesProp![type] = ({ svgStyle }) => (
         <svg
           viewBox="0 0 45 45"   //viewBox for react-chessboard
           width="100%"
@@ -264,7 +268,7 @@ const MultiplayerGame = () => {
           style={svgStyle}
         >
           <image
-            href={`/pieces/${selectedPieceStyle}/${type}.svg`}
+            href={`${import.meta.env.BASE_URL}/pieces/${selectedPieceStyle}/${type}.svg`}
             x="0"
             y="0"
             width="45"
@@ -317,10 +321,9 @@ const MultiplayerGame = () => {
     darkSquareStyle,
     lightSquareStyle,
     pieces: piecesProp,
-    boardOrientation: playerColor === "b" ? "black" : "white",
+    boardOrientation: (playerColor === "b" ? "black" : "white") as "black" | "white",
   };
 
-  const moveHistory = chessGame.history();
   const currentFen = chessGame.fen();
   const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
   const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
@@ -349,7 +352,7 @@ const MultiplayerGame = () => {
           </div>
           {halfMovesClock > 0 && (
             <div style={{ textAlign: "center", margin: "10px 0", color: "#666" }}>
-              Moves until draw (50-move rule): <strong>{movesUntilDraw}</strong>
+              До нічиєї (правило 50 ходів) залишилось: <strong>{movesUntilDraw}</strong>
             </div>
           )}
           {getLocalStorage.showMoveHistory === true && (

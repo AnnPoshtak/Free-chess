@@ -18,9 +18,28 @@
   text-align: center;
 }
 
+.modal {
+  background-color: var(--hd-color); 
+  color: var(--text-color);
+  padding: 30px 40px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  text-align: center;
+  min-width: 320px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
 .title {
   padding-bottom: 15px;
-  color: $white-color;
+  color: var(--text-color);
   font-size: 24px;
   margin: 0;
   text-transform: uppercase;
