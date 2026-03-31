@@ -17,7 +17,7 @@ let waitingForGame: Player[] = [];
 
 const io = new Server(server, {
   cors: {
-    origin: "https://annposhtak.github.io",
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
