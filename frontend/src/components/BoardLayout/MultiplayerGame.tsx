@@ -11,6 +11,7 @@ import {
 import { io } from "socket.io-client";
 import NicknameModal from "../NicknameModal/NicknameModal.tsx";
 import ServerUnavailableScreen from "./ServerUnavailableScreen/ServerUnavailableScreen.tsx";
+import Chat from "./Chat/Chat";
 
 // List of all piece types
 const pieceTypes = [
@@ -18,7 +19,7 @@ const pieceTypes = [
   "bP", "bN", "bB", "bR", "bQ", "bK",
 ] as const;
 
-const socket = io("https://free-chess-2epi.onrender.com", {
+const socket = io("http://localhost:4000", {
   autoConnect: false,
   transports: ["websocket"],
   extraHeaders: {
@@ -41,6 +42,8 @@ const MultiplayerGame = () => {
   
   const [serverStatus, setServerStatus] = useState<boolean>(true)
   const [nickname, setNickname] = useState<string | null>(null);
+  
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   //all for websockets
   useEffect(() => {
@@ -72,8 +75,6 @@ const MultiplayerGame = () => {
       checkGameOver();
     });
 
-
-
     setTimeout(() => {
       if (!socket.connected) {
         setServerStatus(false)
@@ -97,7 +98,7 @@ const MultiplayerGame = () => {
       socket.off("game_started");
       socket.off("board_updated");
       socket.off("opponent_disconnected");
-      socket.off("connect_error")
+      socket.off("connect_error");
       socket.disconnect(); // Disconnect to avoid phantom players
     };
   }, [nickname]);
@@ -136,6 +137,7 @@ const MultiplayerGame = () => {
     setOptionSquares({});
     setRoomId(null);
     setPlayerColor(null);
+    setIsChatOpen(false);
     socket.emit("find_new_game", { roomId: oldRoomId });
   }
 
@@ -366,12 +368,41 @@ const MultiplayerGame = () => {
         </div>
       ) : (
         <>
-          <div className={styles.boardLayout_pos}>
-            <Chessboard options={chessboardOptions} />
-            {gameOverMessage && (
-              <BoardMessage message={gameOverMessage} onRestart={restartGame} />
-            )}
+          <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start" }}>
+            <div className={styles.boardLayout_pos}>
+              <Chessboard options={chessboardOptions} />
+              {gameOverMessage && (
+                <BoardMessage message={gameOverMessage} onRestart={restartGame} />
+              )}
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+              <button 
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                style={{
+                  fontSize: "24px",
+                  background: "#f0f0f0",
+                  border: "1px solid #ccc",
+                  cursor: "pointer",
+                  padding: "10px",
+                  borderRadius: "50%",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "50px",
+                  height: "50px",
+                  transition: "background 0.3s"
+                }}
+                title={isChatOpen ? "Закрити чат" : "Відкрити чат"}
+              >
+                💬
+              </button>
+              
+              {isChatOpen && <Chat socket={socket} roomId={roomId} />}
+            </div>
           </div>
+          
           {halfMovesClock > 0 && (
             <div style={{ textAlign: "center", margin: "10px 0", color: "#666" }}>
               До нічиєї (правило 50 ходів) залишилось: <strong>{movesUntilDraw}</strong>

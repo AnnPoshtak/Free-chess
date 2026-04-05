@@ -71,6 +71,18 @@ io.on('connection', (socket) => {
     socket.to(data.roomId).emit("board_updated", data.fen);
   });
 
+  socket.on("send_message", (data) => {
+    const nickname = socket.handshake.auth.nickname || "Анонім";
+    
+    const messagePayload = {
+      id: Date.now().toString(),
+      text: data.text,
+      senderId: socket.id,
+      senderNickname: nickname,
+    };
+    io.to(data.roomId).emit("receive_message", messagePayload);
+  });
+
   socket.on("disconnecting", () => {
     console.log(`The player with id ${socket.id} has left the game.`);
     for (const room of socket.rooms) {
