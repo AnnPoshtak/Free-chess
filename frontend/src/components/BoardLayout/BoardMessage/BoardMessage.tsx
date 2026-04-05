@@ -11,7 +11,7 @@ const BoardMessage = ({ message, onRestart }: BoardMessageProps) => {
       <div className={styles.modal}>
         <h2 className={styles.title}>{message}</h2>
         <button className={styles.button} onClick={onRestart}>
-          Play again
+          Зіграти знову
         </button>
       </div>
     </div>

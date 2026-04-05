@@ -83,6 +83,25 @@ io.on('connection', (socket) => {
     io.to(data.roomId).emit("receive_message", messagePayload);
   });
 
+  socket.on("give_up", (data) => {
+    console.log(`Player ${socket.id} has given up in room ${data.roomId}`);
+    socket.to(data.roomId).emit("opponent_gave_up");
+  });
+
+  socket.on("offer_draw", (data) => {
+    console.log(`Player ${socket.id} has offered a draw in room ${data.roomId}`);
+    socket.to(data.roomId).emit("opponent_offered_draw");
+  });
+
+  socket.on("offer_draw_response", (data) => {
+    console.log(`Player ${socket.id} has responded to draw offer in room ${data.roomId} with accepted: ${data.accepted}`);
+    if (data.accepted) {
+      io.to(data.roomId).emit("game_drawn");
+    } else {
+      socket.to(data.roomId).emit("opponent_declined_draw");
+    }
+  });
+
   socket.on("disconnecting", () => {
     console.log(`The player with id ${socket.id} has left the game.`);
     for (const room of socket.rooms) {
@@ -98,7 +117,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4001;
 server.listen(PORT, () => {
   console.log(`Server works on port ${PORT}`);
 });

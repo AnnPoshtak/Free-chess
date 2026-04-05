@@ -12,6 +12,8 @@ import { io } from "socket.io-client";
 import NicknameModal from "../NicknameModal/NicknameModal.tsx";
 import ServerUnavailableScreen from "./ServerUnavailableScreen/ServerUnavailableScreen.tsx";
 import Chat from "./Chat/Chat";
+import DrawOfferModal from "./DrawOfferModal/DrawOfferModal.tsx";
+import DrawDeclinedModal from "./DrawDeclinedModal/DrawDeclinedModal.tsx";
 
 // List of all piece types
 const pieceTypes = [
@@ -19,7 +21,7 @@ const pieceTypes = [
   "bP", "bN", "bB", "bR", "bQ", "bK",
 ] as const;
 
-const socket = io("http://localhost:4000", {
+const socket = io("http://localhost:4001", {
   autoConnect: false,
   transports: ["websocket"],
   extraHeaders: {
@@ -44,6 +46,15 @@ const MultiplayerGame = () => {
   const [nickname, setNickname] = useState<string | null>(null);
   
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+
+  const [showDrawOffer, setShowDrawOffer] = useState<boolean>(false);
+  const [showDrawDeclined, setShowDrawDeclined] = useState<boolean>(false);
+
+  const roomIdRef = useRef(roomId);
+
+  useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
 
   //all for websockets
   useEffect(() => {
@@ -82,13 +93,33 @@ const MultiplayerGame = () => {
         socket.off("game_started");
         socket.off("board_updated");
         socket.off("opponent_disconnected");
+        socket.off("opponent_offered_draw");
+        socket.off("game_drawn");
+        socket.off("opponent_declined_draw");
+        socket.off("opponent_gave_up");
         socket.off("connect_error")
         socket.disconnect(); 
         }
-    }, 60000)
+    }, 65000)
 
     socket.on("opponent_disconnected", () => {
       setGameOverMessage("Ти переміг! Ваш противник покинув гру");
+    });
+
+    socket.on("opponent_gave_up", () => {
+      setGameOverMessage("Ти переміг! Ваш противник здався");
+    });
+
+    socket.on("opponent_offered_draw", () => {
+      setShowDrawOffer(true);
+    });
+
+    socket.on("game_drawn", () => {
+      setGameOverMessage("Гра закінчилась внічию.");
+    });
+
+    socket.on("opponent_declined_draw", () => {
+      setShowDrawDeclined(true);
     });
 
     socket.connect();
@@ -98,8 +129,12 @@ const MultiplayerGame = () => {
       socket.off("game_started");
       socket.off("board_updated");
       socket.off("opponent_disconnected");
+      socket.off("opponent_gave_up");
+      socket.off("opponent_offered_draw");
+      socket.off("game_drawn");
+      socket.off("opponent_declined_draw");
       socket.off("connect_error");
-      socket.disconnect(); // Disconnect to avoid phantom players
+      socket.disconnect(); 
     };
   }, [nickname]);
 
@@ -172,9 +207,9 @@ const MultiplayerGame = () => {
         background:
           chessGame.get(move.to) &&
             chessGame.get(move.to)?.color !== chessGame.get(square)?.color
-            ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)" // larger circle for capturing
+            ? "radial-gradient(circle, rgba(0,0,0,.1) 85%, transparent 85%)" 
             : "radial-gradient(circle, rgba(0,0,0,.1) 25%, transparent 25%)",
-        // smaller circle for moving
+        
         borderRadius: "50%",
       };
     }
@@ -272,7 +307,6 @@ const MultiplayerGame = () => {
     }
   }
 
-  // Piece styles
   const selectedPieceStyle = getLocalStorage.pieceStyle || "Classic";
 
   let piecesProp: Record<string, (props: any) => React.JSX.Element> | undefined = undefined;
@@ -282,7 +316,7 @@ const MultiplayerGame = () => {
     pieceTypes.forEach((type) => {
       piecesProp![type] = ({ svgStyle }) => (
         <svg
-          viewBox="0 0 45 45"   //viewBox for react-chessboard
+          viewBox="0 0 45 45"   
           width="100%"
           height="100%"
           style={svgStyle}
@@ -310,7 +344,7 @@ const MultiplayerGame = () => {
 
   // check if king have check or mate
   if (chessGame.isCheck() || chessGame.isCheckmate()) {
-    const turn = chessGame.turn(); // who is moving now
+    const turn = chessGame.turn(); 
     const board = chessGame.board();
     let kingSquare = "";
     for (const row of board) {
@@ -325,7 +359,7 @@ const MultiplayerGame = () => {
     // make square red so player see danger
     if (kingSquare) {
       customSquareStyles[kingSquare] = {
-        ...customSquareStyles[kingSquare], // keep old style if exist
+        ...customSquareStyles[kingSquare], 
         background: "radial-gradient(ellipse at center, rgba(255, 0, 0, 0.8) 0%, rgba(255, 0, 0, 0.4) 60%, transparent 100%)",
         borderRadius: "50%",
       };
@@ -348,6 +382,17 @@ const MultiplayerGame = () => {
   const halfMovesClock = parseInt(currentFen.split(" ")[4], 10);
   const movesUntilDraw = Math.ceil((100 - halfMovesClock) / 2);
 
+  const handleAcceptDraw = () => {
+    setGameOverMessage("Гра закінчилась внічию за згодою обох гравців.");
+    socket.emit("offer_draw_response", { roomId: roomIdRef.current, accepted: true });
+    setShowDrawOffer(false);
+  };
+
+  const handleDeclineDraw = () => {
+    socket.emit("offer_draw_response", { roomId: roomIdRef.current, accepted: false });
+    setShowDrawOffer(false);
+  };
+
   if (!nickname) {
     return <NicknameModal onSave={setNickname} />;
   }
@@ -360,7 +405,6 @@ const MultiplayerGame = () => {
   return (
     <section className={styles.boardLayout}>
       <h2>{opponentNickname || "Очікуємо суперника..."}</h2>
-      {/* Show waiting screen if no room exists yet */}
       {!roomId ? (
         <div style={{ textAlign: "center", padding: "50px 20px" }}>
           <h2>Шукаємо вам суперника... ⏳</h2>
@@ -414,6 +458,26 @@ const MultiplayerGame = () => {
         </>
       )}
       <h2>{nickname}</h2>
+      <div style={{"display": "flex", "flexDirection":"row"}}>
+        <button style={{"border": "1px solid #000000"}} onClick={() => {
+          socket.emit("give_up", { roomId });
+          setGameOverMessage("Ви здалися. Гра закінчена.");
+        }}>Здатися</button>
+        <button style={{"border": "1px solid #000000"}} onClick={() => socket.emit("offer_draw", { roomId })}>Запропонувати нічию</button>
+      </div>
+
+      {showDrawOffer && (
+        <DrawOfferModal 
+            onAccept={handleAcceptDraw} 
+            onDecline={handleDeclineDraw} 
+        />
+      )}
+
+      {showDrawDeclined && (
+        <DrawDeclinedModal 
+            onClose={() => setShowDrawDeclined(false)} 
+        />
+      )}
     </section>
   );
 };

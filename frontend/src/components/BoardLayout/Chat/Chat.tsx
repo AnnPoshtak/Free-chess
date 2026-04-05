@@ -56,7 +56,7 @@ const Chat: React.FC<ChatProps> = ({ socket, roomId }) => {
                 {!isMine && (
                   <span className={style.nickname}>{msg.senderNickname}</span>
                 )}
-                <span>{msg.text}</span>
+                <span className={style.msgText}>{msg.text}</span>
               </div>
             </div>
           );
