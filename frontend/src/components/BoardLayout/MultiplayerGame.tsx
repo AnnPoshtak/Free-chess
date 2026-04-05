@@ -10,6 +10,7 @@ import {
 } from "react-chessboard";
 import { io } from "socket.io-client";
 import NicknameModal from "../NicknameModal/NicknameModal.tsx";
+import ServerUnavailableScreen from "./ServerUnavailableScreen/ServerUnavailableScreen.tsx";
 
 // List of all piece types
 const pieceTypes = [
@@ -38,6 +39,7 @@ const MultiplayerGame = () => {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [opponentNickname, setOpponentNickname] = useState<string>("");
   
+  const [serverStatus, setServerStatus] = useState<boolean>(true)
   const [nickname, setNickname] = useState<string | null>(null);
 
   //all for websockets
@@ -48,6 +50,7 @@ const MultiplayerGame = () => {
 
     socket.on("connect", () => {
       console.log("Connected to server. SocketID:", socket.id);
+      setServerStatus(true)
     });
 
     socket.on("game_started", (data) => {
@@ -69,6 +72,20 @@ const MultiplayerGame = () => {
       checkGameOver();
     });
 
+
+
+    setTimeout(() => {
+      if (!socket.connected) {
+        setServerStatus(false)
+        socket.off("connect");
+        socket.off("game_started");
+        socket.off("board_updated");
+        socket.off("opponent_disconnected");
+        socket.off("connect_error")
+        socket.disconnect(); 
+        }
+    }, 60000)
+
     socket.on("opponent_disconnected", () => {
       setGameOverMessage("Ти переміг! Ваш противник покинув гру");
     });
@@ -80,6 +97,7 @@ const MultiplayerGame = () => {
       socket.off("game_started");
       socket.off("board_updated");
       socket.off("opponent_disconnected");
+      socket.off("connect_error")
       socket.disconnect(); // Disconnect to avoid phantom players
     };
   }, [nickname]);
@@ -330,6 +348,10 @@ const MultiplayerGame = () => {
 
   if (!nickname) {
     return <NicknameModal onSave={setNickname} />;
+  }
+
+  if (!serverStatus){
+    return (<ServerUnavailableScreen/>)
   }
 
   // render the chessboard
